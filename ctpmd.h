@@ -16,7 +16,7 @@
 class Ctpmd : public CThostFtdcMdSpi
 {
 public:
-	Ctpmd(EventEngine *eventengine, std::string gatewayname="ctp");
+	Ctpmd(EventEngine *eventengine, std::string gatewayname = "ctp");
 
 	~Ctpmd();
 
@@ -44,19 +44,23 @@ protected:
 	virtual void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData);
 
 private:
-	inline void writeLog(const std::string& msg) const ;
+	inline void writeLog(const std::string& msg) const;
 	inline bool IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo) const;
 	void connect_md(const std::string &userID, const std::string &password, const std::string &brokerID, const std::string &address);
 
 	std::string gatewayname;
-	EventEngine *eventengine;
-	CThostFtdcMdApi* mdApi;
+	EventEngine *eventengine=nullptr;
+	CThostFtdcMdApi* mdApi=nullptr;
+
+	std::set<std::string> ninetoeleven;
+	std::set<std::string> ninetohalfeleven;
+	std::set<std::string> ninetoone;
+	std::set<std::string>ninetohalftwo;
+
 	bool connectStatus;
 	bool loginStatus;
-        CtpConnectData ctpData;
+	jsstructs::CtpConnectData ctpData;
 	std::set<std::string>subscribedSymbols;
-	int req_ID=0;
-
-	std::shared_ptr<spdlog::logger> my_logger;
+	int req_ID = 0;
 };
 #endif
