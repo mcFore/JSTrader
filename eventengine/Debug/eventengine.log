@@ -1,0 +1,119 @@
+﻿生成启动时间为 2017/8/22 22:19:15。
+     1>项目“C:\Users\kangs\Desktop\datarecorder\eventengine\eventengine.vcxproj”在节点 2 上(Build 个目标)。
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(357,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+     1>ClCompile:
+         D:\VS2013\VC\bin\CL.exe /c /I"C:\Program Files (x86)\Visual Leak Detector\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D EVENTENGINE_EXPORTS /D STRUCTS_EXPORTS /D _CRT_SECURE_NO_WARNINGS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt eventengine.cpp
+         eventengine.cpp
+     1>c:\users\kangs\desktop\datarecorder\include\utils.hpp(305): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\kangs\desktop\datarecorder\include\utils.hpp(306): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\kangs\desktop\datarecorder\include\utils.hpp(307): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\kangs\desktop\datarecorder\include\utils.hpp(308): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(298): warning C4251: “Event::m_eventtype”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(382): warning C4251: “Event_Tick::symbol”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Tick”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(383): warning C4251: “Event_Tick::exchange”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Tick”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(384): warning C4251: “Event_Tick::gatewayname”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Tick”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(389): warning C4251: “Event_Tick::date”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Tick”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(390): warning C4251: “Event_Tick::time”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Tick”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(429): warning C4251: “Event_Trade::symbol”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Trade”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(430): warning C4251: “Event_Trade::exchange”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Trade”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(431): warning C4251: “Event_Trade::tradeID”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Trade”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(432): warning C4251: “Event_Trade::orderID”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Trade”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(433): warning C4251: “Event_Trade::gatewayname”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Trade”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(435): warning C4251: “Event_Trade::direction”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Trade”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(436): warning C4251: “Event_Trade::offset”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Trade”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(439): warning C4251: “Event_Trade::tradeTime”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Trade”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(448): warning C4251: “Event_Order::symbol”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Order”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(449): warning C4251: “Event_Order::exchange”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Order”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(450): warning C4251: “Event_Order::orderID”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Order”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(451): warning C4251: “Event_Order::gatewayname”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Order”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(453): warning C4251: “Event_Order::direction”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Order”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(454): warning C4251: “Event_Order::offset”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Order”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(458): warning C4251: “Event_Order::status”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Order”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(460): warning C4251: “Event_Order::orderTime”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Order”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(461): warning C4251: “Event_Order::cancelTime”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Order”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(473): warning C4251: “Event_Contract::symbol”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Contract”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(474): warning C4251: “Event_Contract::exchange”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Contract”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(475): warning C4251: “Event_Contract::name”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Contract”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(476): warning C4251: “Event_Contract::gatewayname”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Contract”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(477): warning C4251: “Event_Contract::productClass”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Contract”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(482): warning C4251: “Event_Contract::underlyingSymbol”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Contract”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(483): warning C4251: “Event_Contract::optionType”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Contract”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(498): warning C4251: “Event_Position::symbol”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Position”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(499): warning C4251: “Event_Position::direction”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Position”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(500): warning C4251: “Event_Position::gatewayname”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Position”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(515): warning C4251: “Event_Account::gatewayname”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Account”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(516): warning C4251: “Event_Account::accountid”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Account”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(531): warning C4251: “Event_Error::errorID”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Error”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(532): warning C4251: “Event_Error::errorMsg”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Error”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(533): warning C4251: “Event_Error::additionalInfo”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Error”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(534): warning C4251: “Event_Error::gatewayname”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Error”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(535): warning C4251: “Event_Error::errorTime”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Error”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(543): warning C4251: “Event_Log::msg”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Log”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(544): warning C4251: “Event_Log::gatewayname”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Log”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(545): warning C4251: “Event_Log::logTime”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_Log”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(553): warning C4251: “Event_UpdateStrategy::strategyname”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_UpdateStrategy”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(554): warning C4251: “Event_UpdateStrategy::parammap”: class“std::map<std::string,std::string,std::less<_Kty>,std::allocator<std::pair<const _Kty,_Ty>>>”需要有 dll 接口由 class“Event_UpdateStrategy”的客户端使用
+                 with
+                 [
+                     _Kty=std::string
+         ,            _Ty=std::string
+                 ]
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(555): warning C4251: “Event_UpdateStrategy::varmap”: class“std::map<std::string,std::string,std::less<_Kty>,std::allocator<std::pair<const _Kty,_Ty>>>”需要有 dll 接口由 class“Event_UpdateStrategy”的客户端使用
+                 with
+                 [
+                     _Kty=std::string
+         ,            _Ty=std::string
+                 ]
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(563): warning C4251: “Event_UpdatePortfolio::strategyname”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_UpdatePortfolio”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(564): warning C4251: “Event_UpdatePortfolio::symbol”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_UpdatePortfolio”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(565): warning C4251: “Event_UpdatePortfolio::datetime”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_UpdatePortfolio”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(566): warning C4251: “Event_UpdatePortfolio::Portfoliodata”: struct“jsstructs::PortfolioData”需要有 dll 接口由 class“Event_UpdatePortfolio”的客户端使用
+                 c:\users\kangs\desktop\datarecorder\include\structs.hpp(260) : 参见“jsstructs::PortfolioData”的声明
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(574): warning C4251: “Event_LoadStrategy::strategyname”: class“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口由 class“Event_LoadStrategy”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(575): warning C4251: “Event_LoadStrategy::parammap”: class“std::map<std::string,std::string,std::less<_Kty>,std::allocator<std::pair<const _Kty,_Ty>>>”需要有 dll 接口由 class“Event_LoadStrategy”的客户端使用
+                 with
+                 [
+                     _Kty=std::string
+         ,            _Ty=std::string
+                 ]
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(576): warning C4251: “Event_LoadStrategy::varmap”: class“std::map<std::string,std::string,std::less<_Kty>,std::allocator<std::pair<const _Kty,_Ty>>>”需要有 dll 接口由 class“Event_LoadStrategy”的客户端使用
+                 with
+                 [
+                     _Kty=std::string
+         ,            _Ty=std::string
+                 ]
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(592): warning C4251: “Event_Backtest_Bar::bar”: class“jsstructs::BarData”需要有 dll 接口由 class“Event_Backtest_Bar”的客户端使用
+                 c:\users\kangs\desktop\datarecorder\include\structs.hpp(171) : 参见“jsstructs::BarData”的声明
+     1>c:\users\kangs\desktop\datarecorder\eventengine\eventengine.h(52): warning C4251: “SynQueue<EVENT>::mutex”: class“std::recursive_mutex”需要有 dll 接口由 class“SynQueue<EVENT>”的客户端使用
+                 d:\vs2013\vc\include\mutex(118) : 参见“std::recursive_mutex”的声明
+                 c:\users\kangs\desktop\datarecorder\eventengine\eventengine.h(55): 参见对正在编译的类 模板 实例化“SynQueue<EVENT>”的引用
+     1>c:\users\kangs\desktop\datarecorder\eventengine\eventengine.h(53): warning C4251: “SynQueue<EVENT>::queue”: class“std::queue<std::shared_ptr<_Ty>,std::deque<std::shared_ptr<_Ty>,std::allocator<std::shared_ptr<_Ty>>>>”需要有 dll 接口由 class“SynQueue<EVENT>”的客户端使用
+     1>c:\users\kangs\desktop\datarecorder\eventengine\eventengine.h(54): warning C4251: “SynQueue<EVENT>::cv”: class“std::condition_variable_any”需要有 dll 接口由 class“SynQueue<EVENT>”的客户端使用
+                 d:\vs2013\vc\include\condition_variable(157) : 参见“std::condition_variable_any”的声明
+     1>c:\users\kangs\desktop\datarecorder\eventengine\eventengine.h(73): warning C4251: “EventEngine::mutex”: class“std::mutex”需要有 dll 接口由 class“EventEngine”的客户端使用
+                 d:\vs2013\vc\include\mutex(105) : 参见“std::mutex”的声明
+     1>c:\users\kangs\desktop\datarecorder\eventengine\eventengine.h(74): warning C4251: “EventEngine::cv”: class“std::condition_variable”需要有 dll 接口由 class“EventEngine”的客户端使用
+                 d:\vs2013\vc\include\condition_variable(28) : 参见“std::condition_variable”的声明
+     1>c:\users\kangs\desktop\datarecorder\eventengine\eventengine.h(79): warning C4251: “EventEngine::active”: struct“std::atomic<bool>”需要有 dll 接口由 class“EventEngine”的客户端使用
+                 d:\vs2013\vc\include\xxatomic(183) : 参见“std::atomic<bool>”的声明
+     1>c:\users\kangs\desktop\datarecorder\eventengine\eventengine.h(52): warning C4251: “SynQueue<Event>::mutex”: class“std::recursive_mutex”需要有 dll 接口由 class“SynQueue<Event>”的客户端使用
+                 d:\vs2013\vc\include\mutex(118) : 参见“std::recursive_mutex”的声明
+                 c:\users\kangs\desktop\datarecorder\eventengine\eventengine.cpp(5): 参见对正在编译的类 模板 实例化“SynQueue<Event>”的引用
+     1>c:\users\kangs\desktop\datarecorder\eventengine\eventengine.h(53): warning C4251: “SynQueue<Event>::queue”: class“std::queue<std::shared_ptr<Event>,std::deque<_Ty,std::allocator<_Ty>>>”需要有 dll 接口由 class“SynQueue<Event>”的客户端使用
+                 with
+                 [
+                     _Ty=std::shared_ptr<Event>
+                 ]
+     1>c:\users\kangs\desktop\datarecorder\eventengine\eventengine.h(54): warning C4251: “SynQueue<Event>::cv”: class“std::condition_variable_any”需要有 dll 接口由 class“SynQueue<Event>”的客户端使用
+                 d:\vs2013\vc\include\condition_variable(157) : 参见“std::condition_variable_any”的声明
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(334): warning C4715: “Event_Tick::getMinute”: 不是所有的控件路径都返回值
+     1>c:\users\kangs\desktop\datarecorder\include\structs.hpp(348): warning C4715: “Event_Tick::getHour”: 不是所有的控件路径都返回值
+       Link:
+         D:\VS2013\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"../bin/debug\eventengine.dll" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files (x86)\Visual Leak Detector\lib\Win32" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"../bin/debug\eventengine.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"../bin/debug\eventengine.lib" /MACHINE:X86 /DLL Debug\eventengine.obj
+            正在创建库 ../bin/debug\eventengine.lib 和对象 ../bin/debug\eventengine.exp
+         eventengine.vcxproj -> C:\Users\kangs\Desktop\datarecorder\eventengine\../bin/debug\eventengine.dll
+     1>已完成生成项目“C:\Users\kangs\Desktop\datarecorder\eventengine\eventengine.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:02.34

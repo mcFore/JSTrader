@@ -1,0 +1,5 @@
+userid=037836
+password=460531277
+brokerid=9999
+mdaddress=tcp://180.168.146.187:10010
+tdaddress=tcp://180.168.146.187:10000
