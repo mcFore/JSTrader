@@ -93,12 +93,25 @@ void Ctpmd::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRs
 
 void Ctpmd::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
 {
+	if (symbol_mapping_volume.find(pDepthMarketData->InstrumentID) == symbol_mapping_volume.end())
+	{
+		symbol_mapping_volume[pDepthMarketData->InstrumentID] = pDepthMarketData->Volume;
+	}
+
+	double volume=(pDepthMarketData->Volume - symbol_mapping_volume.at(pDepthMarketData->InstrumentID));
+	symbol_mapping_volume[pDepthMarketData->InstrumentID] = pDepthMarketData->Volume;
+
+	if (volume <= 0)
+	{
+		return;
+	}
+
 	std::shared_ptr<Event_Tick>e = std::make_shared<Event_Tick>();
 	e->gatewayname = this->gatewayname;
 	e->symbol = pDepthMarketData->InstrumentID;
 	e->exchange = pDepthMarketData->ExchangeID;
 	e->lastprice = pDepthMarketData->LastPrice;
-	e->volume = pDepthMarketData->Volume;
+	e->volume = volume;
 	e->openInterest = pDepthMarketData->OpenInterest;
 	e->time = std::string(pDepthMarketData->UpdateTime) + "." + std::to_string(pDepthMarketData->UpdateMillisec / 100);
 	e->date = Utils::getCurrentDate();

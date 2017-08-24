@@ -10,6 +10,7 @@ int main()
 	{
 		Utils::createDirectory("./logs");
 	}
+
 	EventEngine eventengine;
 	Datarecorder datarecorder(&eventengine);
 	eventengine.startEngine();

@@ -9,7 +9,6 @@
 #include "ctpmd.h"
 #include "bson.h"
 #include "mongoc.h"
-#include "spdlog/spdlog.h"
 #if _MSC_VER >= 1600
 
 #pragma execution_character_set("utf-8")
@@ -44,7 +43,7 @@ private:
 
 	void insertTicktoDb(const std::string &dbname,const std::string &symbol, std::shared_ptr<Event_Tick> tick);
 	mutable std::mutex log_mutex;
-
+	mutable std::mutex tick_mutex;
 
 	std::map<std::string,int>barMinutemap;
 	std::map<std::string,int>barHourmap;

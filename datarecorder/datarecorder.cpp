@@ -6,7 +6,7 @@
 #endif
 Datarecorder::Datarecorder(EventEngine *eventengine) :connectStatus(false)
 {
-	my_logger = spdlog::rotating_logger_mt("Datarecorder", "logs/datarecorder.txt", 1048576 *10, 3);
+	my_logger = spdlog::rotating_logger_mt("Datarecorder", "logs/datarecorder.txt", 1048576 * 10, 3);
 	my_logger->flush_on(spdlog::level::info);
 	this->eventengine = eventengine;
 	this->ctpgateway = new Ctpmd(eventengine);
@@ -96,7 +96,7 @@ void Datarecorder::autoConnect()
 		}
 	}
 	else {
-		if (this->connectStatus == false) 
+		if (this->connectStatus == false)
 		{
 			if (Utils::getWeekDay(Utils::getCurrentDate()) != 6 && Utils::getWeekDay(Utils::getCurrentDate()) != 7)
 			{
@@ -169,14 +169,8 @@ void Datarecorder::onTick(std::shared_ptr<Event>e)
 		}
 	}
 	//更新日线缓存，并插入tick数据
-	if (this->dailyBarmap.find(Tick->symbol) != this->dailyBarmap.end())
-	{
-		this->dailyBarmap[Tick->symbol]->volume += Tick->volume;
-	}
-	else
-	{
-		this->dailyBarmap[Tick->symbol] = Tick;//每次更新
-	}
+
+	this->dailyBarmap[Tick->symbol] = Tick;//每次更新
 	this->insertTicktoDb("CTPTickDb", Tick->symbol, Tick);
 	if (Tick->getMinute() != this->barMinutemap.at(Tick->symbol) || Tick->getHour() != this->barHourmap.at(Tick->symbol)) {
 		if (!((this->barHourmap.at(Tick->symbol) == 11 && this->barMinutemap.at(Tick->symbol) == 30) || (this->barHourmap.at(Tick->symbol) == 15 && this->barMinutemap.at(Tick->symbol) == 00) || (this->barHourmap.at(Tick->symbol) == 10 && this->barMinutemap.at(Tick->symbol) == 15))) { //剔除10点15分11点半下午3点的一根TICK合成出来的K线
@@ -328,94 +322,67 @@ void Datarecorder::onDailybar()
 
 void Datarecorder::insertTicktoDb(const std::string &dbname, const std::string &symbol, std::shared_ptr<Event_Tick> tick)
 {
-	my_logger->info("insertTicktoDb");
-	std::string symbola = tick->symbol;
-	my_logger->info(
-		"symbol:{} askprice1:{} askprice2:{} askprice3:{} askprice4:{} askprice5:{} askvolume1:{} askvolume2:{} askvolume3:{} askvolume4:{} askvolume5:{} bidprice1:{} bidprice2:{} bidprice3:{} bidprice4:{} bidprice5:{}  bidvolume1:{} bidvolume2:{} bidvolume3:{} bidvolume4:{} bidvolume5:{} date:{} exchange:{} highPrice:{} lastprice:{} lowerLimit:{} lowPrice:{} openInterest:{} openPrice:{} preClosePrice:{} time:{} upperLimit:{} volume:{}",
-		tick->symbol,
-		tick->askprice1,
-		tick->askprice2,
-		tick->askprice3,
-		tick->askprice4,
-		tick->askprice5,
-		tick->askvolume1,
-		tick->askvolume2,
-		tick->askvolume3,
-		tick->askvolume4,
-		tick->askvolume5,
-		tick->bidprice1,
-		tick->bidprice2,
-		tick->bidprice3,
-		tick->bidprice4,
-		tick->bidprice5,
-		tick->bidvolume1,
-		tick->bidvolume2,
-		tick->bidvolume3,
-		tick->bidvolume4,
-		tick->bidvolume5,
-		tick->date,
-		tick->exchange,
-		tick->highPrice,
-		tick->lastprice,
-		tick->lowerLimit,
-		tick->lowPrice,
-		tick->openInterest,
-		tick->openPrice,
-		tick->preClosePrice,
-		tick->time,
-		tick->upperLimit,
-		tick->volume);
-	auto milliseconds = Utils::getMilliseconds();
-	std::string lastmilliseconds = milliseconds.substr(milliseconds.size() - 3);
-	long long id = std::stoll(std::to_string(tick->getTime_t()) + lastmilliseconds);
-	if (this->lastTickIdmap.find(symbol) != this->lastTickIdmap.end()) {
-		if (this->lastTickIdmap.at(symbol) == id) {
-			this->writeLog(symbol + "收到了重复的时间戳" + std::to_string(id));
-			return;
+	std::unique_lock<std::mutex>lck(tick_mutex);
+	std::vector<std::string>time_milliseconds = Utils::split(tick->time, ".");
+	if (time_milliseconds.size() == 2)
+	{
+		std::string lastmilliseconds = time_milliseconds.back()+"00";
+		long long id = std::stoll(std::to_string(tick->getTime_t()) + lastmilliseconds);
+		if (this->lastTickIdmap.find(symbol) != this->lastTickIdmap.end())
+		{
+			if (this->lastTickIdmap.at(symbol) == id)
+			{
+				this->writeLog(symbol + "收到了重复的时间戳" + std::to_string(id));
+				return;
+			}
 		}
+		mongoc_client_t     *client = mongoc_client_pool_pop(this->pool);
+		mongoc_collection_t *collection = mongoc_client_get_collection(client, dbname.c_str(), symbol.c_str());
+		bson_error_t error;
+		bson_t *doc = bson_new();
+		this->lastTickIdmap[symbol] = id;
+		BSON_APPEND_INT64(doc, "_id", id);
+		BSON_APPEND_DOUBLE(doc, "bidVolume5", tick->bidvolume5);
+		BSON_APPEND_DOUBLE(doc, "bidVolume4", tick->bidvolume4);
+		BSON_APPEND_DOUBLE(doc, "bidVolume3", tick->bidvolume3);
+		BSON_APPEND_DOUBLE(doc, "bidVolume2", tick->bidvolume2);
+		BSON_APPEND_DOUBLE(doc, "bidVolume1", tick->bidvolume1);
+		BSON_APPEND_DOUBLE(doc, "askVolume1", tick->askvolume1);
+		BSON_APPEND_DOUBLE(doc, "askVolume2", tick->askvolume2);
+		BSON_APPEND_DOUBLE(doc, "askVolume3", tick->askvolume3);
+		BSON_APPEND_DOUBLE(doc, "askVolume4", tick->askvolume4);
+		BSON_APPEND_DOUBLE(doc, "askVolume5", tick->askvolume5);
+		BSON_APPEND_DOUBLE(doc, "askPrice5", tick->askprice5);
+		BSON_APPEND_DOUBLE(doc, "askPrice4", tick->askprice4);
+		BSON_APPEND_DOUBLE(doc, "askPrice3", tick->askprice3);
+		BSON_APPEND_DOUBLE(doc, "askPrice2", tick->askprice2);
+		BSON_APPEND_DOUBLE(doc, "askPrice1", tick->askprice1);
+		BSON_APPEND_DOUBLE(doc, "bidPrice5", tick->bidprice5);
+		BSON_APPEND_DOUBLE(doc, "bidPrice4", tick->bidprice4);
+		BSON_APPEND_DOUBLE(doc, "bidPrice3", tick->bidprice3);
+		BSON_APPEND_DOUBLE(doc, "bidPrice2", tick->bidprice2);
+		BSON_APPEND_DOUBLE(doc, "bidPrice1", tick->bidprice1);
+		BSON_APPEND_DOUBLE(doc, "lastPrice", tick->lastprice);
+		BSON_APPEND_DOUBLE(doc, "volume", tick->volume);
+		BSON_APPEND_DOUBLE(doc, "openInterest", tick->openInterest);
+		BSON_APPEND_DOUBLE(doc, "lowerLimit", tick->lowerLimit);
+		BSON_APPEND_DOUBLE(doc, "upperLimit", tick->upperLimit);
+		BSON_APPEND_UTF8(doc, "exchange", tick->exchange.c_str());
+		BSON_APPEND_UTF8(doc, "symbol", tick->symbol.c_str());
+		BSON_APPEND_DATE_TIME(doc, "datetime", id);
+		BSON_APPEND_UTF8(doc, "date", tick->date.c_str());
+		BSON_APPEND_UTF8(doc, "time", tick->time.c_str());
+		// 将bson文档插入到集合
+		if (!mongoc_collection_insert(collection, MONGOC_INSERT_NONE, doc, NULL, &error)) {
+			this->writeLog("mongoc insert failed");
+			fprintf(stderr, "Count failed: %s\n", error.message);
+		}
+		bson_destroy(doc);
+		mongoc_collection_destroy(collection);
+		mongoc_client_pool_push(this->pool, client);
 	}
-
-	mongoc_client_t     *client = mongoc_client_pool_pop(this->pool);
-	mongoc_collection_t *collection = mongoc_client_get_collection(client, dbname.c_str(), symbol.c_str());
-	bson_error_t error;
-	bson_t *doc = bson_new();
-	this->lastTickIdmap[symbol] = id;
-	BSON_APPEND_INT64(doc, "_id", id);
-	BSON_APPEND_DOUBLE(doc, "bidVolume5", tick->bidvolume5);
-	BSON_APPEND_DOUBLE(doc, "bidVolume4", tick->bidvolume4);
-	BSON_APPEND_DOUBLE(doc, "bidVolume3", tick->bidvolume3);
-	BSON_APPEND_DOUBLE(doc, "bidVolume2", tick->bidvolume2);
-	BSON_APPEND_DOUBLE(doc, "bidVolume1", tick->bidvolume1);
-	BSON_APPEND_DOUBLE(doc, "askVolume1", tick->askvolume1);
-	BSON_APPEND_DOUBLE(doc, "askVolume2", tick->askvolume2);
-	BSON_APPEND_DOUBLE(doc, "askVolume3", tick->askvolume3);
-	BSON_APPEND_DOUBLE(doc, "askVolume4", tick->askvolume4);
-	BSON_APPEND_DOUBLE(doc, "askVolume5", tick->askvolume5);
-	BSON_APPEND_DOUBLE(doc, "askPrice5", tick->askprice5);
-	BSON_APPEND_DOUBLE(doc, "askPrice4", tick->askprice4);
-	BSON_APPEND_DOUBLE(doc, "askPrice3", tick->askprice3);
-	BSON_APPEND_DOUBLE(doc, "askPrice2", tick->askprice2);
-	BSON_APPEND_DOUBLE(doc, "askPrice1", tick->askprice1);
-	BSON_APPEND_DOUBLE(doc, "bidPrice5", tick->bidprice5);
-	BSON_APPEND_DOUBLE(doc, "bidPrice4", tick->bidprice4);
-	BSON_APPEND_DOUBLE(doc, "bidPrice3", tick->bidprice3);
-	BSON_APPEND_DOUBLE(doc, "bidPrice2", tick->bidprice2);
-	BSON_APPEND_DOUBLE(doc, "bidPrice1", tick->bidprice1);
-	BSON_APPEND_DOUBLE(doc, "lastPrice", tick->lastprice);
-	BSON_APPEND_DOUBLE(doc, "volume", tick->volume);
-	BSON_APPEND_DOUBLE(doc, "openInterest", tick->openInterest);
-	BSON_APPEND_DOUBLE(doc, "lowerLimit", tick->lowerLimit);
-	BSON_APPEND_DOUBLE(doc, "upperLimit", tick->upperLimit);
-	BSON_APPEND_UTF8(doc, "exchange", tick->exchange.c_str());
-	BSON_APPEND_UTF8(doc, "symbol", tick->symbol.c_str());
-	BSON_APPEND_DATE_TIME(doc, "datetime", id);
-	BSON_APPEND_UTF8(doc, "date", tick->date.c_str());
-	BSON_APPEND_UTF8(doc, "time", tick->time.c_str());
-	// 将bson文档插入到集合
-	if (!mongoc_collection_insert(collection, MONGOC_INSERT_NONE, doc, NULL, &error)) {
-		this->writeLog("mongoc insert failed");
+	else
+	{
+		my_logger->error("insert Tick DB failed symbol:{} date:{} time:{} ", tick->symbol, tick->date, tick->time);
 	}
-	bson_destroy(doc);
-	mongoc_collection_destroy(collection);
-	mongoc_client_pool_push(this->pool, client);
 }

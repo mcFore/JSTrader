@@ -57,6 +57,8 @@ private:
 	std::set<std::string> ninetoone;
 	std::set<std::string>ninetohalftwo;
 
+	std::map<std::string, double>symbol_mapping_volume;
+
 	bool connectStatus;
 	bool loginStatus;
 	jsstructs::CtpConnectData ctpData;
