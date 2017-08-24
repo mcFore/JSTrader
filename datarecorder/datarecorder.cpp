@@ -169,7 +169,14 @@ void Datarecorder::onTick(std::shared_ptr<Event>e)
 		}
 	}
 	//更新日线缓存，并插入tick数据
-	this->dailyBarmap[Tick->symbol] = Tick;//每次更新
+	if (this->dailyBarmap.find(Tick->symbol) != this->dailyBarmap.end())
+	{
+		this->dailyBarmap[Tick->symbol]->volume += Tick->volume;
+	}
+	else
+	{
+		this->dailyBarmap[Tick->symbol] = Tick;//每次更新
+	}
 	this->insertTicktoDb("CTPTickDb", Tick->symbol, Tick);
 	if (Tick->getMinute() != this->barMinutemap.at(Tick->symbol) || Tick->getHour() != this->barHourmap.at(Tick->symbol)) {
 		if (!((this->barHourmap.at(Tick->symbol) == 11 && this->barMinutemap.at(Tick->symbol) == 30) || (this->barHourmap.at(Tick->symbol) == 15 && this->barMinutemap.at(Tick->symbol) == 00) || (this->barHourmap.at(Tick->symbol) == 10 && this->barMinutemap.at(Tick->symbol) == 15))) { //剔除10点15分11点半下午3点的一根TICK合成出来的K线
@@ -235,7 +242,8 @@ void Datarecorder::onTick(std::shared_ptr<Event>e)
 		this->barmap[Tick->symbol].close = Tick->lastprice;
 		this->barmap[Tick->symbol].highPrice = Tick->highPrice;
 		this->barmap[Tick->symbol].lowPrice = Tick->lowPrice;
-		this->barmap[Tick->symbol].volume = Tick->volume;
+		this->barmap[Tick->symbol].openInterest = Tick->openInterest;
+		this->barmap[Tick->symbol].volume += Tick->volume;
 	}
 }
 
