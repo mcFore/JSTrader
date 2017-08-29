@@ -29,6 +29,7 @@ private:
 	std::set<std::string>ninetohalfeleven;
 	std::set<std::string>ninetoone;
 	std::set<std::string>ninetohalftwo;
+	std::set<std::string>treasury_futures;
 
 	std::set<std::string>conf_symbols;
 	void readSymbols();
@@ -44,6 +45,7 @@ private:
 	void insertTicktoDb(const std::string &dbname,const std::string &symbol, std::shared_ptr<Event_Tick> tick);
 	mutable std::mutex log_mutex;
 	mutable std::mutex tick_mutex;
+	mutable std::mutex bar_mutex;
 
 	std::map<std::string,int>barMinutemap;
 	std::map<std::string,int>barHourmap;
@@ -55,6 +57,7 @@ private:
 	mongoc_uri_t         *uri;
 
 	std::map<std::string,long long>lastTickIdmap;
+	std::map<std::string, long long>lastBarIdmap;
 
 	std::shared_ptr<spdlog::logger>my_logger;
 };

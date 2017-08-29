@@ -20,12 +20,14 @@ Datarecorder::Datarecorder(EventEngine *eventengine) :connectStatus(false)
 	this->pool = mongoc_client_pool_new(uri);
 	std::vector<std::string>ninetoeleven = { "bu", "rb", "hc", "ru" };
 	this->ninetoeleven.insert(ninetoeleven.begin(), ninetoeleven.end()); //9点到11点的合约列表
-	std::vector<std::string>ninetohalfeleven = { "p", "j", "m", "y", "a", "b", "jm", "i", "SR", "CF", "RM", "MA", "ZC", "FG", "OI" };
+	std::vector<std::string>ninetohalfeleven = { "p", "j", "m", "y", "a", "b", "jm", "i", "SR", "CF", "RM", "MA", "ZC", "FG", "OI", "CY" };
 	this->ninetohalfeleven.insert(ninetohalfeleven.begin(), ninetohalfeleven.end()); //9点到11点半的合约
 	std::vector<std::string>ninetoone = { "cu", "al", "zn", "pb", "sn", "ni" };
 	this->ninetoone.insert(ninetoone.begin(), ninetoone.end()); //9点到1点的合约列表
 	std::vector<std::string>ninetohalftwo = { "ag", "au" };
 	this->ninetohalftwo.insert(ninetohalftwo.begin(), ninetohalftwo.end()); //9点到2点半的合约
+	std::vector<std::string>treasury_futures = { "TF" };
+	this->treasury_futures.insert(treasury_futures.begin(), treasury_futures.end()); //国债到下午三点十五分
 }
 
 Datarecorder::~Datarecorder()
@@ -88,7 +90,7 @@ void Datarecorder::autoConnect()
 	//判断一下当前时间是不是在早上3点到8点50之间
 	auto nowtime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());//获取当前的系统时间
 	if (((nowtime > Utils::timeTotime_t(2, 30, 0)) && (nowtime < Utils::timeTotime_t(8, 58, 0)))
-		|| ((nowtime > Utils::timeTotime_t(15, 01, 0)) && (nowtime < Utils::timeTotime_t(20, 58, 0)))) {
+		|| ((nowtime > Utils::timeTotime_t(15, 16, 0)) && (nowtime < Utils::timeTotime_t(20, 58, 0)))) {
 		if (this->connectStatus == true) {
 			this->connectStatus = false;
 			this->writeLog("CTP接口主动(断开连接)");
@@ -115,65 +117,10 @@ void Datarecorder::onTick(std::shared_ptr<Event>e)
 	auto ticktime_t = Tick->getTime_t();
 	auto systemtime_t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());//获取当前的系统时间
 	std::string symbolHead = Utils::regexSymbol(Tick->symbol);
-	if (this->ninetoeleven.find(symbolHead) != this->ninetoeleven.end()) {
-		if (!(((ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) || ((ticktime_t >= Utils::timeTotime_t(21, 0, 0)) && (ticktime_t <= Utils::timeTotime_t(23, 0, 0))))) {
-			//在9点到11点里头的对立事件则返回
-			return;
-		}
-		else {
-			//数据包的时间是在交易时间段的在判断一下真实时间是否也在交易时间段
-			if (!(((systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) || ((systemtime_t >= Utils::timeTotime_t(21, 0, 0)) && (systemtime_t <= Utils::timeTotime_t(23, 0, 0))))) {
-				return;
-			}
-		}
-	}
-	else if (this->ninetohalfeleven.find(symbolHead) != this->ninetohalfeleven.end()) {
-		if (!(((ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) || ((ticktime_t >= Utils::timeTotime_t(21, 0, 0)) && (ticktime_t <= Utils::timeTotime_t(23, 30, 0))))) {
-			return;
-		}
-		else {
-			if (!(((systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) || ((systemtime_t >= Utils::timeTotime_t(21, 0, 0)) && (systemtime_t <= Utils::timeTotime_t(23, 30, 0))))) {
-				return;
-			}
-		}
-	}
-	else if (this->ninetoone.find(symbolHead) != this->ninetoone.end()) {
-		if (!(((ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) || ((ticktime_t >= Utils::timeTotime_t(21, 0, 0)) && (ticktime_t <= Utils::timeTotime_t(24, 0, 0))) || (ticktime_t <= Utils::timeTotime_t(1, 0, 0)))) {
-			return;
-		}
-		else {
-			if (!(((systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) || ((systemtime_t >= Utils::timeTotime_t(21, 0, 0)) && (systemtime_t <= Utils::timeTotime_t(24, 0, 0))) || (systemtime_t <= Utils::timeTotime_t(1, 0, 0)))) {
-				return;
-			}
-		}
-	}
-	else if (this->ninetohalftwo.find(symbolHead) != this->ninetohalftwo.end()) {
-		if (!(((ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) || ((ticktime_t >= Utils::timeTotime_t(21, 0, 0)) && (ticktime_t <= Utils::timeTotime_t(24, 0, 0))) || (ticktime_t <= Utils::timeTotime_t(2, 30, 0)))) {
-			return;
-		}
-		else {
-			if (!(((systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) || ((systemtime_t >= Utils::timeTotime_t(21, 0, 0)) && (systemtime_t <= Utils::timeTotime_t(24, 0, 0))) || (systemtime_t <= Utils::timeTotime_t(2, 30, 0)))) {
-				return;
-			}
-		}
-	}
-	else {
-		//如果只是日盘没有夜盘的合约，就判断一下发过来的时间是否是在日盘交易时间之内
-		if (!(ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) {
-			return;
-		}
-		else {
-			if (!(systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) {
-				return;
-			}
-		}
-	}
-	//更新日线缓存，并插入tick数据
-
 	this->dailyBarmap[Tick->symbol] = Tick;//每次更新
 	this->insertTicktoDb("CTPTickDb", Tick->symbol, Tick);
 	if (Tick->getMinute() != this->barMinutemap.at(Tick->symbol) || Tick->getHour() != this->barHourmap.at(Tick->symbol)) {
-		if (!((this->barHourmap.at(Tick->symbol) == 11 && this->barMinutemap.at(Tick->symbol) == 30) || (this->barHourmap.at(Tick->symbol) == 15 && this->barMinutemap.at(Tick->symbol) == 00) || (this->barHourmap.at(Tick->symbol) == 10 && this->barMinutemap.at(Tick->symbol) == 15))) { //剔除10点15分11点半下午3点的一根TICK合成出来的K线
+		if (!((this->barHourmap.at(Tick->symbol) == 11 && this->barMinutemap.at(Tick->symbol) == 30) || (this->barHourmap.at(Tick->symbol) == 10 && this->barMinutemap.at(Tick->symbol) == 15))) { //剔除10点15分11点半下午3点的一根TICK合成出来的K线
 			if (this->ninetoeleven.find(symbolHead) != this->ninetoeleven.end()) {
 				if (this->barHourmap.at(Tick->symbol) == 23) {
 					this->barHourmap.at(Tick->symbol) = 99;
@@ -182,7 +129,7 @@ void Datarecorder::onTick(std::shared_ptr<Event>e)
 				}
 			}
 			else if (this->ninetohalfeleven.find(symbolHead) != this->ninetohalfeleven.end()) {
-				if (this->barHourmap.at(Tick->symbol) == 23 && this->barMinutemap.at(Tick->symbol) == 30) {
+				if ((this->barHourmap.at(Tick->symbol) == 23 && this->barMinutemap.at(Tick->symbol) == 30) || (this->barHourmap.at(Tick->symbol) == 15 && this->barMinutemap.at(Tick->symbol) == 00)) {
 					this->barHourmap.at(Tick->symbol) = 99;
 					this->barMinutemap.at(Tick->symbol) = 99;
 					this->barmap.erase(Tick->symbol);
@@ -190,14 +137,22 @@ void Datarecorder::onTick(std::shared_ptr<Event>e)
 				}
 			}
 			else if (this->ninetoone.find(symbolHead) != this->ninetoone.end()) {
-				if (this->barHourmap.at(Tick->symbol) == 1) {
+				if ((this->barHourmap.at(Tick->symbol) == 1) || (this->barHourmap.at(Tick->symbol) == 15 && this->barMinutemap.at(Tick->symbol) == 00)) {
 					this->barHourmap.at(Tick->symbol) = 99;
 					this->barmap.erase(Tick->symbol);
 					return;
 				}
 			}
 			else if (this->ninetohalftwo.find(symbolHead) != this->ninetohalftwo.end()) {
-				if (this->barHourmap.at(Tick->symbol) == 2 && this->barMinutemap.at(Tick->symbol) == 30) {
+				if ((this->barHourmap.at(Tick->symbol) == 2 && this->barMinutemap.at(Tick->symbol) == 30) || (this->barHourmap.at(Tick->symbol) == 15 && this->barMinutemap.at(Tick->symbol) == 00)) {
+					this->barHourmap.at(Tick->symbol) = 99;
+					this->barMinutemap.at(Tick->symbol) = 99;
+					this->barmap.erase(Tick->symbol);
+					return;
+				}
+			}
+			else if (this->treasury_futures.find(symbolHead) != this->treasury_futures.end()) {
+				if (this->barHourmap.at(Tick->symbol) == 15 && this->barMinutemap.at(Tick->symbol) == 15) {
 					this->barHourmap.at(Tick->symbol) = 99;
 					this->barMinutemap.at(Tick->symbol) = 99;
 					this->barmap.erase(Tick->symbol);
@@ -205,7 +160,24 @@ void Datarecorder::onTick(std::shared_ptr<Event>e)
 				}
 			}
 			if (this->barmap.find(Tick->symbol) != this->barmap.end()) {
-				onBar(this->barmap.at(Tick->symbol));
+				if (this->barHourmap.at(Tick->symbol) == 15 && this->barMinutemap.at(Tick->symbol) == 00)
+				{
+					if (this->treasury_futures.find(symbolHead) == this->treasury_futures.end())
+					{
+						this->barHourmap.at(Tick->symbol) = 99;
+						this->barMinutemap.at(Tick->symbol) = 99;
+						this->barmap.erase(Tick->symbol);
+						return;
+					}
+					else
+					{
+						onBar(this->barmap.at(Tick->symbol));
+					}
+				}
+				else
+				{
+					onBar(this->barmap.at(Tick->symbol));
+				}
 			}
 		}
 		jsstructs::BarData bar;
@@ -243,39 +215,53 @@ void Datarecorder::onTick(std::shared_ptr<Event>e)
 
 void Datarecorder::onBar(const jsstructs::BarData &bar)
 {
-	mongoc_client_t     *client = mongoc_client_pool_pop(this->pool);
-	mongoc_collection_t *collection = mongoc_client_get_collection(client, "CTPMinuteDb", bar.symbol.c_str());
-	bson_error_t error;
-	bson_t *doc = bson_new();
-	auto milliseconds = Utils::getMilliseconds();
-	std::string lastmilliseconds = milliseconds.substr(milliseconds.size() - 3);
-	long long id = std::stoll(std::to_string(bar.getTime_t()) + lastmilliseconds);
-	BSON_APPEND_INT64(doc, "_id", id);
-	BSON_APPEND_UTF8(doc, "exchange", bar.exchange.c_str());
-	BSON_APPEND_UTF8(doc, "symbol", bar.symbol.c_str());
-	BSON_APPEND_DOUBLE(doc, "open", bar.open);
-	BSON_APPEND_DOUBLE(doc, "high", bar.high);
-	BSON_APPEND_DOUBLE(doc, "low", bar.low);
-	BSON_APPEND_DOUBLE(doc, "close", bar.close);
-	BSON_APPEND_DOUBLE(doc, "volume", bar.volume);
-	BSON_APPEND_DATE_TIME(doc, "datetime", id);
-	BSON_APPEND_UTF8(doc, "date", bar.date.c_str());
-	BSON_APPEND_UTF8(doc, "time", bar.time.c_str());
-	BSON_APPEND_DOUBLE(doc, "openInterest", bar.openInterest);
-	BSON_APPEND_DOUBLE(doc, "openPrice", bar.openPrice);
-	BSON_APPEND_DOUBLE(doc, "highPrice", bar.highPrice);
-	BSON_APPEND_DOUBLE(doc, "lowPrice", bar.lowPrice);
-	BSON_APPEND_DOUBLE(doc, "preClosePrice", bar.preClosePrice);
-	BSON_APPEND_DOUBLE(doc, "upperLimit", bar.upperLimit);
-	BSON_APPEND_DOUBLE(doc, "lowerLimit", bar.lowerLimit);
-	// 将bson文档插入到集合
-	if (!mongoc_collection_insert(collection, MONGOC_INSERT_NONE, doc, NULL, &error)) {
-		this->writeLog("mongoc Bar insert failed");
+	std::unique_lock<std::mutex>lck(bar_mutex);
+	std::vector<std::string>time_milliseconds = Utils::split(bar.time, ".");
+	if (time_milliseconds.size() == 2)
+	{
+		std::string lastmilliseconds = time_milliseconds.back() + "00";
+		long long id = std::stoll(std::to_string(bar.getTime_t()) + lastmilliseconds);
+		if (this->lastBarIdmap.find(bar.symbol) != this->lastBarIdmap.end())
+		{
+			if (this->lastBarIdmap.at(bar.symbol) == id)
+			{
+				this->writeLog(bar.symbol + "bar级别收到了重复的时间戳" + std::to_string(id));
+				return;
+			}
+		}
+
+		mongoc_client_t     *client = mongoc_client_pool_pop(this->pool);
+		mongoc_collection_t *collection = mongoc_client_get_collection(client, "CTPMinuteDb", bar.symbol.c_str());
+		bson_error_t error;
+		bson_t *doc = bson_new();
+		this->lastBarIdmap[bar.symbol] = id;
+		BSON_APPEND_INT64(doc, "_id", id);
+		BSON_APPEND_UTF8(doc, "exchange", bar.exchange.c_str());
+		BSON_APPEND_UTF8(doc, "symbol", bar.symbol.c_str());
+		BSON_APPEND_DOUBLE(doc, "open", bar.open);
+		BSON_APPEND_DOUBLE(doc, "high", bar.high);
+		BSON_APPEND_DOUBLE(doc, "low", bar.low);
+		BSON_APPEND_DOUBLE(doc, "close", bar.close);
+		BSON_APPEND_DOUBLE(doc, "volume", bar.volume);
+		BSON_APPEND_DATE_TIME(doc, "datetime", id);
+		BSON_APPEND_UTF8(doc, "date", bar.date.c_str());
+		BSON_APPEND_UTF8(doc, "time", bar.time.c_str());
+		BSON_APPEND_DOUBLE(doc, "openInterest", bar.openInterest);
+		BSON_APPEND_DOUBLE(doc, "openPrice", bar.openPrice);
+		BSON_APPEND_DOUBLE(doc, "highPrice", bar.highPrice);
+		BSON_APPEND_DOUBLE(doc, "lowPrice", bar.lowPrice);
+		BSON_APPEND_DOUBLE(doc, "preClosePrice", bar.preClosePrice);
+		BSON_APPEND_DOUBLE(doc, "upperLimit", bar.upperLimit);
+		BSON_APPEND_DOUBLE(doc, "lowerLimit", bar.lowerLimit);
+		// 将bson文档插入到集合
+		if (!mongoc_collection_insert(collection, MONGOC_INSERT_NONE, doc, NULL, &error)) {
+			this->writeLog("mongoc Bar insert failed");
+		}
+		bson_destroy(doc);
+		mongoc_collection_destroy(collection);
+		mongoc_client_pool_push(this->pool, client);
+		this->writeLog("合约:" + bar.symbol + "开" + std::to_string(bar.open) + "高" + std::to_string(bar.high) + "低" + std::to_string(bar.low) + "收" + std::to_string(bar.close));
 	}
-	bson_destroy(doc);
-	mongoc_collection_destroy(collection);
-	mongoc_client_pool_push(this->pool, client);
-	this->writeLog("合约:" + bar.symbol + "开" + std::to_string(bar.open) + "高" + std::to_string(bar.high) + "低" + std::to_string(bar.low) + "收" + std::to_string(bar.close));
 }
 
 void Datarecorder::onDailybar()
@@ -326,7 +312,7 @@ void Datarecorder::insertTicktoDb(const std::string &dbname, const std::string &
 	std::vector<std::string>time_milliseconds = Utils::split(tick->time, ".");
 	if (time_milliseconds.size() == 2)
 	{
-		std::string lastmilliseconds = time_milliseconds.back()+"00";
+		std::string lastmilliseconds = time_milliseconds.back() + "00";
 		long long id = std::stoll(std::to_string(tick->getTime_t()) + lastmilliseconds);
 		if (this->lastTickIdmap.find(symbol) != this->lastTickIdmap.end())
 		{

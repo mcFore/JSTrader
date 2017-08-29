@@ -16,7 +16,7 @@
 class Ctpmd : public CThostFtdcMdSpi
 {
 public:
-	Ctpmd(EventEngine *eventengine, std::string gatewayname = "ctp");
+	Ctpmd(EventEngine *eventengine);
 
 	~Ctpmd();
 
@@ -48,19 +48,20 @@ private:
 	inline bool IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo) const;
 	void connect_md(const std::string &userID, const std::string &password, const std::string &brokerID, const std::string &address);
 
-	std::string gatewayname;
+	const std::string gatewayname="ctp";
 	EventEngine *eventengine=nullptr;
 	CThostFtdcMdApi* mdApi=nullptr;
 
 	std::set<std::string> ninetoeleven;
 	std::set<std::string> ninetohalfeleven;
 	std::set<std::string> ninetoone;
-	std::set<std::string>ninetohalftwo;
+	std::set<std::string> ninetohalftwo;
+	std::set<std::string> treasury_futures;
 
 	std::map<std::string, double>symbol_mapping_volume;
 
-	bool connectStatus;
-	bool loginStatus;
+	bool connectStatus=false;
+	bool loginStatus=false;
 	jsstructs::CtpConnectData ctpData;
 	std::set<std::string>subscribedSymbols;
 	int req_ID = 0;

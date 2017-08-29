@@ -4,19 +4,20 @@
 #pragma execution_character_set("utf-8")
 
 #endif
-Ctpmd::Ctpmd(EventEngine *eventengine, std::string gatewayname) :connectStatus(false), loginStatus(false), req_ID(0)
+Ctpmd::Ctpmd(EventEngine *eventengine)
 {
-	this->gatewayname = gatewayname;
 	this->eventengine = eventengine;
 
 	std::vector<std::string>ninetoeleven = { "bu", "rb", "hc", "ru" };
 	this->ninetoeleven.insert(ninetoeleven.begin(), ninetoeleven.end()); //9点到11点的合约列表
-	std::vector<std::string>ninetohalfeleven = { "p", "j", "m", "y", "a", "b", "jm", "i", "SR", "CF", "RM", "MA", "ZC", "FG", "OI" };
+	std::vector<std::string>ninetohalfeleven = { "p", "j", "m", "y", "a", "b", "jm", "i", "SR", "CF", "RM", "MA", "ZC", "FG", "OI", "CY" };
 	this->ninetohalfeleven.insert(ninetohalfeleven.begin(), ninetohalfeleven.end()); //9点到11点半的合约
 	std::vector<std::string>ninetoone = { "cu", "al", "zn", "pb", "sn", "ni" };
 	this->ninetoone.insert(ninetoone.begin(), ninetoone.end()); //9点到1点的合约列表
 	std::vector<std::string>ninetohalftwo = { "ag", "au" };
 	this->ninetohalftwo.insert(ninetohalftwo.begin(), ninetohalftwo.end()); //9点到2点半的合约
+	std::vector<std::string>treasury_futures = { "TF" };
+	this->treasury_futures.insert(treasury_futures.begin(), treasury_futures.end()); //国债到下午三点十五分
 }
 
 Ctpmd::~Ctpmd()
@@ -55,7 +56,7 @@ void Ctpmd::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bI
 void Ctpmd::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	//登录回报
-	if (!IsErrorRspInfo(pRspInfo)) 
+	if (!IsErrorRspInfo(pRspInfo))
 	{
 		//登录成功
 		this->loginStatus = true;
@@ -69,7 +70,7 @@ void Ctpmd::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtd
 			}
 		}
 	}
-	else 
+	else
 	{
 		this->loginStatus = false;
 		this->writeLog(pRspInfo->ErrorMsg);
@@ -84,7 +85,7 @@ void Ctpmd::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRs
 		this->loginStatus = false;
 		this->writeLog("行情服务器登出");
 	}
-	else 
+	else
 	{
 		this->loginStatus = false;
 		this->writeLog(pRspInfo->ErrorMsg);
@@ -98,12 +99,16 @@ void Ctpmd::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
 		symbol_mapping_volume[pDepthMarketData->InstrumentID] = pDepthMarketData->Volume;
 	}
 
-	double volume=(pDepthMarketData->Volume - symbol_mapping_volume.at(pDepthMarketData->InstrumentID));
+	double volume = (pDepthMarketData->Volume - symbol_mapping_volume.at(pDepthMarketData->InstrumentID));
 	symbol_mapping_volume[pDepthMarketData->InstrumentID] = pDepthMarketData->Volume;
 
-	if (volume <= 0)
+	if (volume == 0)
 	{
 		return;
+	}
+	else if (volume < 0)
+	{
+		volume = pDepthMarketData->Volume;
 	}
 
 	std::shared_ptr<Event_Tick>e = std::make_shared<Event_Tick>();
@@ -127,52 +132,71 @@ void Ctpmd::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketDat
 	e->askvolume1 = pDepthMarketData->AskVolume1;
 	e->setUnixDatetime();
 	//过滤CTP的时间***************************************************************************************************************************
-	auto ticktime_t=e->getTime_t();
-	auto systemtime_t=std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());//获取当前的系统时间
-	std::string symbolHead=Utils::regexSymbol(e->symbol);
+	auto ticktime_t = e->getTime_t();
+	auto systemtime_t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());//获取当前的系统时间
+	std::string symbolHead = Utils::regexSymbol(e->symbol);
 	if (this->ninetoeleven.find(symbolHead) != this->ninetoeleven.end()) {
-	    if (!(((ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) || ((ticktime_t >= Utils::timeTotime_t(21, 0, 0)) && (ticktime_t <= Utils::timeTotime_t(23, 0, 0))))) {
-	        //在9点到11点里头的对立事件则返回
-	        return;
-	    } else {
-	        //数据包的时间是在交易时间段的在判断一下真实时间是否也在交易时间段
-	        if (!(((systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) || ((systemtime_t >= Utils::timeTotime_t(21, 0, 0)) && (systemtime_t <= Utils::timeTotime_t(23, 0, 0))))) {
-	            return;
-	        }
-	    }
-	} else if (this->ninetohalfeleven.find(symbolHead) != this->ninetohalfeleven.end()) {
-	    if (!(((ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) || ((ticktime_t >= Utils::timeTotime_t(21, 0, 0)) && (ticktime_t <= Utils::timeTotime_t(23, 30, 0))))) {
-	        return;
-	    } else {
-	        if (!(((systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) || ((systemtime_t >= Utils::timeTotime_t(21, 0, 0)) && (systemtime_t <= Utils::timeTotime_t(23, 30, 0))))) {
-	            return;
-	        }
-	    }
-	} else if (this->ninetoone.find(symbolHead) != this->ninetoone.end()) {
-	    if (!(((ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) || ((ticktime_t >= Utils::timeTotime_t(21, 0, 0)) && (ticktime_t <= Utils::timeTotime_t(24, 0, 0))) || (ticktime_t <= Utils::timeTotime_t(1, 0, 0)))) {
-	        return;
-	    } else {
-	        if (!(((systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) || ((systemtime_t >= Utils::timeTotime_t(21, 0, 0)) && (systemtime_t <= Utils::timeTotime_t(24, 0, 0))) || (systemtime_t <= Utils::timeTotime_t(1, 0, 0)))) {
-	            return;
-	        }
-	    }
-	} else if (this->ninetohalftwo.find(symbolHead) != this->ninetohalftwo.end()) {
-	    if (!(((ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) || ((ticktime_t >= Utils::timeTotime_t(21, 0, 0)) && (ticktime_t <= Utils::timeTotime_t(24, 0, 0))) || (ticktime_t <= Utils::timeTotime_t(2, 30, 0)))) {
-	        return;
-	    } else {
-	        if (!(((systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) || ((systemtime_t >= Utils::timeTotime_t(21, 0, 0)) && (systemtime_t <= Utils::timeTotime_t(24, 0, 0))) || (systemtime_t <= Utils::timeTotime_t(2, 30, 0)))) {
-	            return;
-	        }
-	    }
-	} else {
-	    //如果只是日盘没有夜盘的合约，就判断一下发过来的时间是否是在日盘交易时间之内
-	    if (!(ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) {
-	        return;
-	    } else {
-	        if (!(systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) {
-	            return;
-	        }
-	    }
+		if (!(((ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) || ((ticktime_t >= Utils::timeTotime_t(21, 0, 0)) && (ticktime_t <= Utils::timeTotime_t(23, 0, 0))))) {
+			//在9点到11点里头的对立事件则返回
+			return;
+		}
+		else {
+			//数据包的时间是在交易时间段的在判断一下真实时间是否也在交易时间段
+			if (!(((systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) || ((systemtime_t >= Utils::timeTotime_t(21, 0, 0)) && (systemtime_t <= Utils::timeTotime_t(23, 0, 0))))) {
+				return;
+			}
+		}
+	}
+	else if (this->ninetohalfeleven.find(symbolHead) != this->ninetohalfeleven.end()) {
+		if (!(((ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) || ((ticktime_t >= Utils::timeTotime_t(21, 0, 0)) && (ticktime_t <= Utils::timeTotime_t(23, 30, 0))))) {
+			return;
+		}
+		else {
+			if (!(((systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) || ((systemtime_t >= Utils::timeTotime_t(21, 0, 0)) && (systemtime_t <= Utils::timeTotime_t(23, 30, 0))))) {
+				return;
+			}
+		}
+	}
+	else if (this->ninetoone.find(symbolHead) != this->ninetoone.end()) {
+		if (!(((ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) || ((ticktime_t >= Utils::timeTotime_t(21, 0, 0)) && (ticktime_t <= Utils::timeTotime_t(24, 0, 0))) || (ticktime_t <= Utils::timeTotime_t(1, 0, 0)))) {
+			return;
+		}
+		else {
+			if (!(((systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) || ((systemtime_t >= Utils::timeTotime_t(21, 0, 0)) && (systemtime_t <= Utils::timeTotime_t(24, 0, 0))) || (systemtime_t <= Utils::timeTotime_t(1, 0, 0)))) {
+				return;
+			}
+		}
+	}
+	else if (this->ninetohalftwo.find(symbolHead) != this->ninetohalftwo.end()) {
+		if (!(((ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) || ((ticktime_t >= Utils::timeTotime_t(21, 0, 0)) && (ticktime_t <= Utils::timeTotime_t(24, 0, 0))) || (ticktime_t <= Utils::timeTotime_t(2, 30, 0)))) {
+			return;
+		}
+		else {
+			if (!(((systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) || ((systemtime_t >= Utils::timeTotime_t(21, 0, 0)) && (systemtime_t <= Utils::timeTotime_t(24, 0, 0))) || (systemtime_t <= Utils::timeTotime_t(2, 30, 0)))) {
+				return;
+			}
+		}
+	}
+	else if (this->treasury_futures.find(symbolHead) != this->treasury_futures.end()) {
+		if (!(ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 15, 0))) {
+			return;
+		}
+		else {
+			if (!(systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 15, 0))){
+				return;
+			}
+		}
+	}
+	else {
+		//如果只是日盘没有夜盘的合约，就判断一下发过来的时间是否是在日盘交易时间之内
+		if (!(ticktime_t >= Utils::timeTotime_t(9, 0, 0) && ticktime_t <= Utils::timeTotime_t(15, 0, 0))) {
+			return;
+		}
+		else {
+			if (!(systemtime_t >= Utils::timeTotime_t(9, 0, 0) && systemtime_t <= Utils::timeTotime_t(15, 0, 0))) {
+				return;
+			}
+		}
 	}
 	this->eventengine->put(e);
 }
@@ -185,14 +209,14 @@ bool Ctpmd::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo) const
 
 void Ctpmd::connect()
 {
-	if (Utils::checkExist("./CTPGateway")) 
+	if (Utils::checkExist("./CTPGateway"))
 	{
 		std::fstream file("./CTPGateway/ctp_connect.txt", std::ios::in);
-		if (file.is_open()) 
+		if (file.is_open())
 		{
 			std::string line;
 			std::map<std::string, std::string>configmap;
-			while (getline(file, line)) 
+			while (getline(file, line))
 			{
 				if (line.find("userid=") != std::string::npos) {
 					configmap["userid"] = line.substr(line.find("=") + 1);
@@ -207,7 +231,7 @@ void Ctpmd::connect()
 					configmap["mdaddress"] = line.substr(line.find("=") + 1);
 				}
 			}
-			if (configmap.size() == 4) 
+			if (configmap.size() == 4)
 			{
 				this->connect_md(configmap["userid"], configmap["password"], configmap["brokerid"], configmap["mdaddress"]);
 			}
@@ -216,12 +240,12 @@ void Ctpmd::connect()
 				this->writeLog("Ctp_connect.txt userid password brokerid mdaddress 缺少字段");
 			}
 		}
-		else 
+		else
 		{
 			this->writeLog("./CtpGateway/Ctp_connect.txt 读取失败");
 		}
 	}
-	else 
+	else
 	{
 		this->writeLog("不存在CTPGateway目录");
 	}
@@ -236,14 +260,14 @@ void Ctpmd::connect_md(const std::string &userID, const std::string &password, c
 		this->ctpData.password = password;
 		this->ctpData.brokerID = brokerID;
 		this->ctpData.md_address = address;
-		if (Utils::checkExist("./temp")) 
+		if (Utils::checkExist("./temp"))
 		{
 			this->mdApi = CThostFtdcMdApi::CreateFtdcMdApi("./temp/CTPmd");
 			this->mdApi->RegisterSpi(this);
 			this->mdApi->RegisterFront((char*)(this->ctpData.md_address.c_str()));
 			this->mdApi->Init();
 		}
-		else 
+		else
 		{
 			if (Utils::createDirectory("./temp"))
 			{
@@ -252,7 +276,7 @@ void Ctpmd::connect_md(const std::string &userID, const std::string &password, c
 				this->mdApi->RegisterFront((char*)(this->ctpData.md_address.c_str()));
 				this->mdApi->Init();
 			}
-			else 
+			else
 			{
 				this->writeLog("创建temp目录失败!");
 			}
@@ -265,7 +289,7 @@ void Ctpmd::login()
 	//登录
 	if (this->loginStatus == false)
 	{
-		if (this->ctpData.userID.empty() == false && this->ctpData.password.empty() == false && this->ctpData.brokerID.empty() == false) 
+		if (this->ctpData.userID.empty() == false && this->ctpData.password.empty() == false && this->ctpData.brokerID.empty() == false)
 		{
 			CThostFtdcReqUserLoginField myreq;
 			strncpy(myreq.BrokerID, this->ctpData.brokerID.c_str(), sizeof(myreq.BrokerID) - 1);
@@ -279,9 +303,9 @@ void Ctpmd::login()
 
 void Ctpmd::subscribe(const std::string &symbol)
 {
-	if (this->loginStatus == true) 
+	if (this->loginStatus == true)
 	{
-		if (this->subscribedSymbols.find(symbol) == this->subscribedSymbols.end()) 
+		if (this->subscribedSymbols.find(symbol) == this->subscribedSymbols.end())
 		{
 			this->subscribedSymbols.insert(symbol);
 		}
@@ -310,7 +334,7 @@ void Ctpmd::logout()
 	{
 		this->writeLog("登出请求发送成功");
 	}
-	else 
+	else
 	{
 		this->writeLog("登出请求发送失败");
 	}
